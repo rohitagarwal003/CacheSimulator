@@ -1,0 +1,20 @@
+How to compile
+
+Go to the directory (Project Part-1) containing the files
+main.cpp, UI.h, UI.cpp, Cache.h, Cache.cpp, Memory.h, Memory.cpp
+
+write the command
+g++ *.h *.cpp -o <name of output file>
+
+This will generate the binary.
+
+
+
+To run
+
+Go to the directory (Project Part-1) containing the binary
+./<name of binary> -c<capacity> -b<blocksize> -a<associativity> -r<replacement policy> -v<verbose> <input_trace>
+All options except the input_trace have default values, so they are optional.
+The default values are capacity = 8k, blocksize = 16bytes, associativity = 4, replacement policy = LRU & verbose disabled.
+
+
