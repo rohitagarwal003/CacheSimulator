@@ -2,13 +2,48 @@
 #include <iostream>
 #include <fstream>
 #include <string.h>
+#include <math.h>
 
 using namespace std;
 bool parseParams(int, char**, int&, int&, int&, int&, int&);
+double nextRandomExponential(double);
 
 int main(int argc, char *argv[]) {
     int meanSequentialLength, meanLoopLength, meanLoopRepetitions, percentDataInstructions, percentWriteInstructions;
-    parseParams(argc, argv, meanSequentialLength, meanLoopLength, meanLoopRepetitions, percentDataInstructions, percentWriteInstructions);
+    int sequentialLength, loopLength, loopRepetitions;
+    if (parseParams(argc, argv, meanSequentialLength, meanLoopLength, meanLoopRepetitions, percentDataInstructions, percentWriteInstructions)) {
+        srand((unsigned)time(NULL));
+        int instructionAddress = 0;
+        int numInstructions = 0;
+        while (numInstructions < 1000) {
+            sequentialLength = (int)nextRandomExponential(1/(double)meanSequentialLength);
+            loopLength = (int)nextRandomExponential(1/(double)meanLoopLength);
+            loopRepetitions = (int)nextRandomExponential(1/(double)meanLoopRepetitions);
+            for (int i = 1; i <= sequentialLength; i++) {
+                cout << instructionAddress + i << " ";
+            }
+            instructionAddress += sequentialLength;
+            numInstructions += sequentialLength;
+            cout << endl;
+            for (int j = 0; j < loopRepetitions; j++) {
+               for (int k = 1; k <= loopLength; k++) {
+                   cout << instructionAddress + k << " ";
+               }
+               cout << endl;
+            }
+            cout << endl;
+            instructionAddress += loopRepetitions == 0? 0: loopLength;
+            numInstructions += (loopLength*loopRepetitions);
+        }
+        cout << endl;
+    }
+}
+
+double nextRandomExponential(double lambda) {
+    // mean of the distribution is 1/lambda
+    double rndU=((double)rand()/((double)RAND_MAX+1));
+    double expX = -1 * log(1-rndU) / lambda;
+    return expX;
 }
 
 bool parseParams(int argc, char* argv[], int& meanSequentialLength, int& meanLoopLength, int& meanLoopRepetitions, int& percentDataInstructions, int& percentWriteInstructions) {
