@@ -7,6 +7,7 @@
 using namespace std;
 bool parseParams(int, char**, int&, int&, int&, int&, int&);
 double nextRandomExponential(double);
+void generateAddresses(int, int, int, int, int);
 
 int main(int argc, char *argv[]) {
     int meanSequentialLength;
@@ -14,36 +15,42 @@ int main(int argc, char *argv[]) {
     int meanLoopRepetitions;
     int percentDataInstructions;
     int percentWriteInstructions;
-    int sequentialLength;
-    int loopLength;
-    int loopRepetitions;
     if (parseParams(argc, argv, meanSequentialLength, meanLoopLength, meanLoopRepetitions, percentDataInstructions, percentWriteInstructions)) {
         srand((unsigned)time(NULL));
         int instructionAddress = 0;
-        int numInstructions    = 0;
-        while (numInstructions < 1000) {
-            sequentialLength = (int)nextRandomExponential(1/(double)meanSequentialLength);
-            loopLength       = (int)nextRandomExponential(1/(double)meanLoopLength);
-            loopRepetitions  = (int)nextRandomExponential(1/(double)meanLoopRepetitions);
-            for (int i = 1; i <= sequentialLength; i++) {
-                cout << instructionAddress + i << " ";
-            }
-            instructionAddress += sequentialLength;
-            numInstructions    += sequentialLength;
-            cout << endl;
-            for (int j = 0; j < loopRepetitions; j++) {
-               for (int k = 1; k <= loopLength; k++) {
-                   cout << instructionAddress + k << " ";
-               }
-               cout << endl;
-            }
-            cout << endl;
-            instructionAddress += loopRepetitions == 0? 0: loopLength;
-            numInstructions    += (loopLength*loopRepetitions);
-        }
+		generateAddresses(1000, instructionAddress, meanSequentialLength, meanLoopLength, meanLoopRepetitions);
         cout << endl;
     }
 }
+
+void generateAddresses(int totalInstructions, int startingAddress, int meanSequentialLength, int meanLoopLength, int meanLoopRepetitions) {
+    int sequentialLength;
+    int loopLength;
+    int loopRepetitions;
+    int instructionAddress = startingAddress;
+    int numInstructions = 0;
+    while (numInstructions < totalInstructions) {
+        sequentialLength = (int)nextRandomExponential(1/(double)meanSequentialLength);
+        loopLength       = (int)nextRandomExponential(1/(double)meanLoopLength);
+        loopRepetitions  = (int)nextRandomExponential(1/(double)meanLoopRepetitions);
+        for (int i = 1; i <= sequentialLength; i++) {
+            cout << instructionAddress + i << " ";
+        }
+        instructionAddress += sequentialLength;
+        numInstructions    += sequentialLength;
+        cout << endl;
+        for (int j = 0; j < loopRepetitions; j++) {
+           for (int k = 1; k <= loopLength; k++) {
+               cout << instructionAddress + k << " ";
+           }
+           cout << endl;
+        }
+        cout << endl;
+        instructionAddress += loopRepetitions == 0? 0: loopLength;
+        numInstructions    += (loopLength*loopRepetitions);
+    }
+}
+		
 
 double nextRandomExponential(double lambda) {
     // mean of the distribution is 1/lambda
