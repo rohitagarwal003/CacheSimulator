@@ -5,9 +5,11 @@
 #include <math.h>
 
 using namespace std;
+
 bool parseParams(int, char**, int&, int&, int&, int&, int&, int&);
 double nextRandomExponential(double);
-int generateAddresses(int, int, double, int, int, int);
+int generateAddresses(int, int, double, int, int, int, double, int);
+int generateAddressesHelper(int, int, double, int, int, int, double, int);
 
 int main(int argc, char *argv[]) {
     int meanSequentialLength;
@@ -16,7 +18,14 @@ int main(int argc, char *argv[]) {
     int percentDataInstructions;
     int percentWriteInstructions;
     int totalInstructions;
-    if (parseParams(argc, argv, totalInstructions, meanSequentialLength, meanLoopLength, meanLoopRepetitions, percentDataInstructions, percentWriteInstructions)) {
+    bool parsed = parseParams(argc, argv,
+                              totalInstructions,
+                              meanSequentialLength,
+                              meanLoopLength,
+                              meanLoopRepetitions,
+                              percentDataInstructions,
+                              percentWriteInstructions);
+    if (parsed) {
         srand((unsigned)time(NULL));
         int instructionAddress = 0;
         generateAddresses(totalInstructions,
@@ -24,12 +33,16 @@ int main(int argc, char *argv[]) {
                           0.1,
                           meanSequentialLength,
                           meanLoopLength,
-                          meanLoopRepetitions);
+                          meanLoopRepetitions,
+                          percentDataInstructions/(double)100,
+                          percentWriteInstructions);
         cout << endl;
     }
 }
 
-int generateAddresses(int totalInstructions, int startingAddress, double jumpProbability, int meanSequentialLength, int meanLoopLength, int meanLoopRepetitions) {
+int generateAddresses(int totalInstructions, int startingAddress, double jumpProbability,
+                      int meanSequentialLength, int meanLoopLength, int meanLoopRepetitions,
+                      double dataInstructionProbability, int percentWriteInstructions) {
     int sequentialLength;
     int loopLength;
     int loopRepetitions;
@@ -43,28 +56,60 @@ int generateAddresses(int totalInstructions, int startingAddress, double jumpPro
         loopRepetitions  = (int)nextRandomExponential(1/(double)meanLoopRepetitions);
         for (int i = 1; i <= sequentialLength; i++) {
             cout << "0 " << hex << instructionAddress + i << dec << endl;
-            if ((double)rand()/((double)RAND_MAX+1) < jumpProbability) {
-                int instructionsExecuted = generateAddresses((totalInstructions-numInstructions)/5,
-                                                             rand() % (1024*1024),
-                                                             jumpProbability/2,
-                                                             meanSequentialLength,
-                                                             meanLoopLength,
-                                                             meanLoopRepetitions);
-                numInstructions += instructionsExecuted;
-
-            }
+            numInstructions += generateAddressesHelper((totalInstructions-numInstructions)/5,
+                                                       rand() % (1024*1024),
+                                                       jumpProbability/2,
+                                                       meanSequentialLength,
+                                                       meanLoopLength,
+                                                       meanLoopRepetitions,
+                                                       dataInstructionProbability,
+                                                       percentWriteInstructions);
         }
         instructionAddress += sequentialLength;
         numInstructions    += sequentialLength;
         for (int j = 0; j < loopRepetitions && loopLength > 0; j++) {
            for (int k = 1; k <= loopLength; k++) {
                cout << "0 " << hex << instructionAddress + k << dec << endl;
+               numInstructions += generateAddressesHelper((totalInstructions-numInstructions)/5,
+                                                          rand() % (1024*1024),
+                                                          jumpProbability/2,
+                                                          meanSequentialLength,
+                                                          meanLoopLength,
+                                                          meanLoopRepetitions,
+                                                          dataInstructionProbability,
+                                                          percentWriteInstructions);
            }
         }
         instructionAddress += loopRepetitions == 0? 0: loopLength;
         numInstructions    += (loopLength*loopRepetitions);
     }
     return numInstructions;
+}
+
+int generateAddressesHelper(int totalInstructions, int startingAddress, double jumpProbability,
+                            int meanSequentialLength, int meanLoopLength, int meanLoopRepetitions,
+                            double dataInstructionProbability, int percentWriteInstructions) {
+    double randomNum = (double)rand()/((double)RAND_MAX+1);
+    int instructionsExecuted = 0;
+    if (randomNum < jumpProbability) {
+        instructionsExecuted = generateAddresses(totalInstructions,
+                                                     startingAddress,
+                                                     jumpProbability,
+                                                     meanSequentialLength,
+                                                     meanLoopLength,
+                                                     meanLoopRepetitions,
+                                                     dataInstructionProbability,
+                                                     percentWriteInstructions);
+    } else if (randomNum < jumpProbability + dataInstructionProbability) {
+        if (rand() % 100 < percentWriteInstructions) {
+            // Store/Write
+            cout << "1 " << hex << rand() % (1024*1024) << dec << " " << rand() % (1024*1024)  << endl;
+        } else {
+            // Load/Read
+            cout << "0 " << hex << rand() % (1024*1024) << dec << endl;
+        }
+    }
+    return instructionsExecuted;
 }
 
 double nextRandomExponential(double lambda) {
@@ -74,7 +119,9 @@ double nextRandomExponential(double lambda) {
     return expX;
 }
 
-bool parseParams(int argc, char* argv[], int& totalInstructions, int& meanSequentialLength, int& meanLoopLength, int& meanLoopRepetitions, int& percentDataInstructions, int& percentWriteInstructions) {
+bool parseParams(int argc, char* argv[], int& totalInstructions,
+                 int& meanSequentialLength, int& meanLoopLength, int& meanLoopRepetitions,
+                 int& percentDataInstructions, int& percentWriteInstructions) {
     // For the parsing of command line options
     int c;
     bool errflg = false;
@@ -119,7 +166,7 @@ bool parseParams(int argc, char* argv[], int& totalInstructions, int& meanSequen
     }
     // Check that we have no illegal options.
     char usageMessage[200];
-    sprintf(usageMessage, "usage: %s -t<Total Instructions> -s<Mean Sequential Length> -l<Mean Loop Length> -r<Mean Loop Repetitions> -d<Percentage of Data Instructions> -w<Percentage of Write Instructions>\n", argv[0]);
+    sprintf(usageMessage, "usage: %s -t <Total Instructions> -s <Mean Sequential Length> -l <Mean Loop Length> -r <Mean Loop Repetitions> -d <Percentage of Data Instructions> -w <Percentage of Write Instructions>\n", argv[0]);
     if (errflg) {
         fprintf(stderr, "%s", usageMessage);
         return false;
