@@ -5,7 +5,7 @@
 #include <math.h>
 
 using namespace std;
-bool parseParams(int, char**, int&, int&, int&, int&, int&);
+bool parseParams(int, char**, int&, int&, int&, int&, int&, int&);
 double nextRandomExponential(double);
 int generateAddresses(int, int, double, int, int, int);
 
@@ -15,10 +15,11 @@ int main(int argc, char *argv[]) {
     int meanLoopRepetitions;
     int percentDataInstructions;
     int percentWriteInstructions;
-    if (parseParams(argc, argv, meanSequentialLength, meanLoopLength, meanLoopRepetitions, percentDataInstructions, percentWriteInstructions)) {
+    int totalInstructions;
+    if (parseParams(argc, argv, totalInstructions, meanSequentialLength, meanLoopLength, meanLoopRepetitions, percentDataInstructions, percentWriteInstructions)) {
         srand((unsigned)time(NULL));
         int instructionAddress = 0;
-        generateAddresses(10000,
+        generateAddresses(totalInstructions,
                           instructionAddress,
                           0.1,
                           meanSequentialLength,
@@ -66,7 +67,6 @@ int generateAddresses(int totalInstructions, int startingAddress, double jumpPro
     return numInstructions;
 }
 
-
 double nextRandomExponential(double lambda) {
     // mean of the distribution is 1/lambda
     double rndU = ((double)rand()/((double)RAND_MAX+1));
@@ -74,7 +74,7 @@ double nextRandomExponential(double lambda) {
     return expX;
 }
 
-bool parseParams(int argc, char* argv[], int& meanSequentialLength, int& meanLoopLength, int& meanLoopRepetitions, int& percentDataInstructions, int& percentWriteInstructions) {
+bool parseParams(int argc, char* argv[], int& totalInstructions, int& meanSequentialLength, int& meanLoopLength, int& meanLoopRepetitions, int& percentDataInstructions, int& percentWriteInstructions) {
     // For the parsing of command line options
     int c;
     bool errflg = false;
@@ -83,8 +83,11 @@ bool parseParams(int argc, char* argv[], int& meanSequentialLength, int& meanLoo
     extern int optind, optopt, opterr;
     opterr = 0;
 
-    while ((c = getopt(argc, argv, "s:l:r:d:w:")) != -1) {
+    while ((c = getopt(argc, argv, "t:s:l:r:d:w:")) != -1) {
         switch (c) {
+            case 't':
+                totalInstructions        = atoi(optarg);
+                break;
             case 's':
                 meanSequentialLength     = atoi(optarg);
                 break;
@@ -101,7 +104,7 @@ bool parseParams(int argc, char* argv[], int& meanSequentialLength, int& meanLoo
                 percentWriteInstructions = atoi(optarg);
                 break;
             case '?':
-                if (optopt == 's' || optopt == 'l' || optopt == 'r' || optopt == 'd' || optopt == 'w') {
+                if (optopt == 't' || optopt == 's' || optopt == 'l' || optopt == 'r' || optopt == 'd' || optopt == 'w') {
                     fprintf(stderr, "Option -%c requires an argument.\n", optopt);
                     errflg = true;
                 } else if (isprint(optopt)) {
@@ -116,7 +119,7 @@ bool parseParams(int argc, char* argv[], int& meanSequentialLength, int& meanLoo
     }
     // Check that we have no illegal options.
     char usageMessage[200];
-    sprintf(usageMessage, "usage: %s -s<Mean Sequential Length> -l<Mean Loop Length> -r<Mean Loop Repetitions> -d<Percentage of Data Instructions> -w<Percentage of Write Instructions>\n", argv[0]);
+    sprintf(usageMessage, "usage: %s -t<Total Instructions> -s<Mean Sequential Length> -l<Mean Loop Length> -r<Mean Loop Repetitions> -d<Percentage of Data Instructions> -w<Percentage of Write Instructions>\n", argv[0]);
     if (errflg) {
         fprintf(stderr, "%s", usageMessage);
         return false;
