@@ -9,21 +9,27 @@ bool parseParams(int, char**, int&, int&, int&, int&, int&);
 double nextRandomExponential(double);
 
 int main(int argc, char *argv[]) {
-    int meanSequentialLength, meanLoopLength, meanLoopRepetitions, percentDataInstructions, percentWriteInstructions;
-    int sequentialLength, loopLength, loopRepetitions;
+    int meanSequentialLength;
+    int meanLoopLength;
+    int meanLoopRepetitions;
+    int percentDataInstructions;
+    int percentWriteInstructions;
+    int sequentialLength;
+    int loopLength;
+    int loopRepetitions;
     if (parseParams(argc, argv, meanSequentialLength, meanLoopLength, meanLoopRepetitions, percentDataInstructions, percentWriteInstructions)) {
         srand((unsigned)time(NULL));
         int instructionAddress = 0;
-        int numInstructions = 0;
+        int numInstructions    = 0;
         while (numInstructions < 1000) {
             sequentialLength = (int)nextRandomExponential(1/(double)meanSequentialLength);
-            loopLength = (int)nextRandomExponential(1/(double)meanLoopLength);
-            loopRepetitions = (int)nextRandomExponential(1/(double)meanLoopRepetitions);
+            loopLength       = (int)nextRandomExponential(1/(double)meanLoopLength);
+            loopRepetitions  = (int)nextRandomExponential(1/(double)meanLoopRepetitions);
             for (int i = 1; i <= sequentialLength; i++) {
                 cout << instructionAddress + i << " ";
             }
             instructionAddress += sequentialLength;
-            numInstructions += sequentialLength;
+            numInstructions    += sequentialLength;
             cout << endl;
             for (int j = 0; j < loopRepetitions; j++) {
                for (int k = 1; k <= loopLength; k++) {
@@ -33,7 +39,7 @@ int main(int argc, char *argv[]) {
             }
             cout << endl;
             instructionAddress += loopRepetitions == 0? 0: loopLength;
-            numInstructions += (loopLength*loopRepetitions);
+            numInstructions    += (loopLength*loopRepetitions);
         }
         cout << endl;
     }
@@ -41,7 +47,7 @@ int main(int argc, char *argv[]) {
 
 double nextRandomExponential(double lambda) {
     // mean of the distribution is 1/lambda
-    double rndU=((double)rand()/((double)RAND_MAX+1));
+    double rndU = ((double)rand()/((double)RAND_MAX+1));
     double expX = -1 * log(1-rndU) / lambda;
     return expX;
 }
@@ -58,16 +64,16 @@ bool parseParams(int argc, char* argv[], int& meanSequentialLength, int& meanLoo
     while ((c = getopt(argc, argv, "s:l:r:d:w:")) != -1) {
         switch (c) {
             case 's':
-                meanSequentialLength = atoi(optarg);
+                meanSequentialLength     = atoi(optarg);
                 break;
             case 'l':
-                meanLoopLength = atoi(optarg);
+                meanLoopLength           = atoi(optarg);
                 break;
             case 'r':
-                meanLoopRepetitions = atoi(optarg);
+                meanLoopRepetitions      = atoi(optarg);
                 break;
             case 'd':
-                percentDataInstructions = atoi(optarg);
+                percentDataInstructions  = atoi(optarg);
                 break;
             case 'w':
                 percentWriteInstructions = atoi(optarg);
