@@ -7,7 +7,7 @@
 using namespace std;
 bool parseParams(int, char**, int&, int&, int&, int&, int&);
 double nextRandomExponential(double);
-void generateAddresses(int, int, int, int, int);
+int generateAddresses(int, int, double, int, int, int);
 
 int main(int argc, char *argv[]) {
     int meanSequentialLength;
@@ -18,39 +18,58 @@ int main(int argc, char *argv[]) {
     if (parseParams(argc, argv, meanSequentialLength, meanLoopLength, meanLoopRepetitions, percentDataInstructions, percentWriteInstructions)) {
         srand((unsigned)time(NULL));
         int instructionAddress = 0;
-		generateAddresses(1000, instructionAddress, meanSequentialLength, meanLoopLength, meanLoopRepetitions);
+        generateAddresses(1000,
+                          instructionAddress,
+                          0.1,
+                          meanSequentialLength,
+                          meanLoopLength,
+                          meanLoopRepetitions);
         cout << endl;
     }
 }
 
-void generateAddresses(int totalInstructions, int startingAddress, int meanSequentialLength, int meanLoopLength, int meanLoopRepetitions) {
+int generateAddresses(int totalInstructions, int startingAddress, double jumpProbability, int meanSequentialLength, int meanLoopLength, int meanLoopRepetitions) {
     int sequentialLength;
     int loopLength;
     int loopRepetitions;
     int instructionAddress = startingAddress;
     int numInstructions = 0;
     while (numInstructions < totalInstructions) {
+        // The following assumes that all of sequential code length,
+        // loop length and number of loop repetitions follow exponential distribution.
         sequentialLength = (int)nextRandomExponential(1/(double)meanSequentialLength);
         loopLength       = (int)nextRandomExponential(1/(double)meanLoopLength);
         loopRepetitions  = (int)nextRandomExponential(1/(double)meanLoopRepetitions);
         for (int i = 1; i <= sequentialLength; i++) {
             cout << instructionAddress + i << " ";
+            if ((double)rand()/((double)RAND_MAX+1) < jumpProbability) {
+                cout << ">>> ";
+                int instructionsExecuted = generateAddresses((totalInstructions-numInstructions)/5,
+                                                             rand(),
+                                                             jumpProbability/2,
+                                                             meanSequentialLength,
+                                                             meanLoopLength,
+                                                             meanLoopRepetitions);
+                cout << "<<<";
+                numInstructions += instructionsExecuted;
+
+            }
         }
         instructionAddress += sequentialLength;
         numInstructions    += sequentialLength;
         cout << endl;
-        for (int j = 0; j < loopRepetitions; j++) {
+        for (int j = 0; j < loopRepetitions && loopLength > 0; j++) {
            for (int k = 1; k <= loopLength; k++) {
                cout << instructionAddress + k << " ";
            }
            cout << endl;
         }
-        cout << endl;
         instructionAddress += loopRepetitions == 0? 0: loopLength;
         numInstructions    += (loopLength*loopRepetitions);
     }
+    return numInstructions;
 }
-		
+
 
 double nextRandomExponential(double lambda) {
     // mean of the distribution is 1/lambda
