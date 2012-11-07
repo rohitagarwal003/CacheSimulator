@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
     if (parseParams(argc, argv, meanSequentialLength, meanLoopLength, meanLoopRepetitions, percentDataInstructions, percentWriteInstructions)) {
         srand((unsigned)time(NULL));
         int instructionAddress = 0;
-        generateAddresses(1000,
+        generateAddresses(10000,
                           instructionAddress,
                           0.1,
                           meanSequentialLength,
@@ -41,28 +41,24 @@ int generateAddresses(int totalInstructions, int startingAddress, double jumpPro
         loopLength       = (int)nextRandomExponential(1/(double)meanLoopLength);
         loopRepetitions  = (int)nextRandomExponential(1/(double)meanLoopRepetitions);
         for (int i = 1; i <= sequentialLength; i++) {
-            cout << instructionAddress + i << " ";
+            cout << "0 " << hex << instructionAddress + i << dec << endl;
             if ((double)rand()/((double)RAND_MAX+1) < jumpProbability) {
-                cout << ">>> ";
                 int instructionsExecuted = generateAddresses((totalInstructions-numInstructions)/5,
-                                                             rand(),
+                                                             rand() % (1024*1024),
                                                              jumpProbability/2,
                                                              meanSequentialLength,
                                                              meanLoopLength,
                                                              meanLoopRepetitions);
-                cout << "<<<";
                 numInstructions += instructionsExecuted;
 
             }
         }
         instructionAddress += sequentialLength;
         numInstructions    += sequentialLength;
-        cout << endl;
         for (int j = 0; j < loopRepetitions && loopLength > 0; j++) {
            for (int k = 1; k <= loopLength; k++) {
-               cout << instructionAddress + k << " ";
+               cout << "0 " << hex << instructionAddress + k << dec << endl;
            }
-           cout << endl;
         }
         instructionAddress += loopRepetitions == 0? 0: loopLength;
         numInstructions    += (loopLength*loopRepetitions);
