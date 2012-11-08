@@ -11,6 +11,9 @@ double nextRandomExponential(double);
 int generateAddresses(int, int, double, int, int, int, double, int);
 int generateAddressesHelper(int, int, double, int, int, int, double, int);
 
+int* dataAddressList;
+int dataSize;
+
 int main(int argc, char *argv[]) {
     int meanSequentialLength;
     int meanLoopLength;
@@ -27,6 +30,11 @@ int main(int argc, char *argv[]) {
                               percentWriteInstructions);
     if (parsed) {
         srand((unsigned)time(NULL));
+        dataSize = totalInstructions/10;
+        dataAddressList = (int *) malloc(dataSize * sizeof(int));
+        for (int i = 0; i < totalInstructions/10; i++) {
+            dataAddressList[i] = rand() % (1024*1024);
+        }
         int instructionAddress = 0;
         generateAddresses(totalInstructions,
                           instructionAddress,
@@ -93,20 +101,22 @@ int generateAddressesHelper(int totalInstructions, int startingAddress, double j
     int instructionsExecuted = 0;
     if (randomNum < jumpProbability) {
         instructionsExecuted = generateAddresses(totalInstructions,
-                                                     startingAddress,
-                                                     jumpProbability,
-                                                     meanSequentialLength,
-                                                     meanLoopLength,
-                                                     meanLoopRepetitions,
-                                                     dataInstructionProbability,
-                                                     percentWriteInstructions);
+                                                 startingAddress,
+                                                 jumpProbability,
+                                                 meanSequentialLength,
+                                                 meanLoopLength,
+                                                 meanLoopRepetitions,
+                                                 dataInstructionProbability,
+                                                 percentWriteInstructions);
     } else if (randomNum < jumpProbability + dataInstructionProbability) {
         if (rand() % 100 < percentWriteInstructions) {
             // Store/Write
-            cout << "1 " << hex << rand() % (1024*1024) << dec << " " << rand() % (1024*1024)  << endl;
+            int location = rand() % dataSize;
+            cout << "1 " << hex << dataAddressList[location] << dec << " " << rand() % (1024*1024)  << endl;
         } else {
             // Load/Read
-            cout << "0 " << hex << rand() % (1024*1024) << dec << endl;
+            int location = rand() % dataSize;
+            cout << "0 " << hex << dataAddressList[location] << dec << endl;
         }
     }
     return instructionsExecuted;
