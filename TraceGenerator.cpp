@@ -11,16 +11,19 @@ double nextRandomExponential(double);
 int generateAddresses(int, int, double, int, int, int, double, int);
 int generateAddressesHelper(int, int, double, int, int, int, double, int);
 
+// Data accesses in a program are typicallly from a restricted memory domain.
 int* dataAddressList;
 int dataSize;
 
 int main(int argc, char *argv[]) {
+
     int meanSequentialLength;
     int meanLoopLength;
     int meanLoopRepetitions;
     int percentDataInstructions;
     int percentWriteInstructions;
     int totalInstructions;
+
     bool parsed = parseParams(argc, argv,
                               totalInstructions,
                               meanSequentialLength,
@@ -28,16 +31,20 @@ int main(int argc, char *argv[]) {
                               meanLoopRepetitions,
                               percentDataInstructions,
                               percentWriteInstructions);
+
     if (parsed) {
         srand((unsigned)time(NULL));
-        dataSize = totalInstructions/10;
+
+        dataSize = totalInstructions/10;    // Assuming that the amount of data memory used by the program
+                                            // depends linearly on the total number of instructions in the program.
         dataAddressList = (int *) malloc(dataSize * sizeof(int));
         for (int i = 0; i < totalInstructions/10; i++) {
             dataAddressList[i] = rand() % (1024*1024);
         }
-        int instructionAddress = 0;
+
+        int startingAddress = 0;
         generateAddresses(totalInstructions,
-                          instructionAddress,
+                          startingAddress,
                           0.1,
                           meanSequentialLength,
                           meanLoopLength,
@@ -51,11 +58,13 @@ int main(int argc, char *argv[]) {
 int generateAddresses(int totalInstructions, int startingAddress, double jumpProbability,
                       int meanSequentialLength, int meanLoopLength, int meanLoopRepetitions,
                       double dataInstructionProbability, int percentWriteInstructions) {
+
     int sequentialLength;
     int loopLength;
     int loopRepetitions;
     int instructionAddress = startingAddress;
     int numInstructions = 0;
+
     while (numInstructions < totalInstructions) {
         // The following assumes that all of sequential code length,
         // loop length and number of loop repetitions follow exponential distribution.
@@ -97,9 +106,11 @@ int generateAddresses(int totalInstructions, int startingAddress, double jumpPro
 int generateAddressesHelper(int totalInstructions, int startingAddress, double jumpProbability,
                             int meanSequentialLength, int meanLoopLength, int meanLoopRepetitions,
                             double dataInstructionProbability, int percentWriteInstructions) {
+
     double randomNum = (double)rand()/((double)RAND_MAX+1);
     int instructionsExecuted = 0;
     if (randomNum < jumpProbability) {
+        // Simulating a method call in the program.
         instructionsExecuted = generateAddresses(totalInstructions,
                                                  startingAddress,
                                                  jumpProbability,
@@ -123,6 +134,7 @@ int generateAddressesHelper(int totalInstructions, int startingAddress, double j
 }
 
 double nextRandomExponential(double lambda) {
+
     // mean of the distribution is 1/lambda
     double rndU = ((double)rand()/((double)RAND_MAX+1));
     double expX = -1 * log(1-rndU) / lambda;
@@ -132,6 +144,7 @@ double nextRandomExponential(double lambda) {
 bool parseParams(int argc, char* argv[], int& totalInstructions,
                  int& meanSequentialLength, int& meanLoopLength, int& meanLoopRepetitions,
                  int& percentDataInstructions, int& percentWriteInstructions) {
+
     // For the parsing of command line options
     int c;
     bool errflg = false;
