@@ -11,7 +11,9 @@ double nextRandomExponential(double);
 int generateAddresses(int, int, double, int, int, int, double, int);
 int generateAddressesHelper(int, double, int, int, int, double, int);
 
-// Data accesses in a program are typicallly from a restricted memory domain.
+const int MEM_SIZE = 1024 * 1024;
+
+// Data accesses in a program are typically from a restricted memory domain.
 int* dataAddressList;
 int dataSize;
 
@@ -46,7 +48,8 @@ int main(int argc, char *argv[]) {
         dataSize = totalInstructions/10;    
         dataAddressList = (int *) malloc(dataSize * sizeof(int));
         for (int i = 0; i < dataSize; i++) {
-            dataAddressList[i] = rand() % (1024*1024);
+            dataAddressList[i] = MEM_SIZE/2 + rand() % (MEM_SIZE/2);
+            // Assuming that data used by the program resides in the later half of the memory.
         }
 
         // Assuming that the number of methods in a program
@@ -54,14 +57,16 @@ int main(int argc, char *argv[]) {
         numMethods = totalInstructions/1000;
         startingAddressList = (int *) malloc(numMethods * sizeof(int));
         for (int i = 0; i < numMethods; i++) {
-            startingAddressList[i] = rand() % (1024*1024);
+            startingAddressList[i] = rand() % (MEM_SIZE/2);
+            // Assuming that instructions are stored in the earlier half of the memory.
         }
 
         int initialStartingAddress = 0;
+        double initialJumpProbability = 0.1;
 
         generateAddresses(totalInstructions,
                           initialStartingAddress,
-                          0.1,
+                          initialJumpProbability,
                           meanSequentialLength,
                           meanLoopLength,
                           meanLoopRepetitions,
@@ -86,13 +91,15 @@ int generateAddresses(int totalInstructions, int startingAddress, double jumpPro
 
         // The following assumes that all of sequential code length,
         // loop length and number of loop repetitions follow exponential distribution.
-        sequentialLength = (int)nextRandomExponential(1/(double)meanSequentialLength);
-        loopLength       = (int)nextRandomExponential(1/(double)meanLoopLength);
-        loopRepetitions  = (int)nextRandomExponential(1/(double)meanLoopRepetitions);
+        sequentialLength = (int) nextRandomExponential(1.0/meanSequentialLength);
+        loopLength       = (int) nextRandomExponential(1.0/meanLoopLength);
+        loopRepetitions  = (int) nextRandomExponential(1.0/meanLoopRepetitions);
 
         // Sequential Part
         for (int i = 1; i <= sequentialLength; i++) {
             cout << "0 " << hex << instructionAddress + i << dec << endl;
+            // Assuming that the function length gets smaller as we go deeper in the call stack.
+            // Assuming that the probablity of calling another function decreases as we go deeper in the call stack.
             numInstructions += generateAddressesHelper((totalInstructions-numInstructions)/5,
                                                        jumpProbability/2,
                                                        meanSequentialLength,
@@ -105,9 +112,14 @@ int generateAddresses(int totalInstructions, int startingAddress, double jumpPro
         numInstructions    += sequentialLength;
 
         // Loop Part
+        // TODO Bring some more regularity in the way addresses inside a loop are generated.
+        // i.e. take care of the fact that if some instruction in a loop is a function call in one iteration,
+        // then it is a function call in all iterations.
         for (int j = 0; j < loopRepetitions && loopLength > 0; j++) {
            for (int k = 1; k <= loopLength; k++) {
                cout << "0 " << hex << instructionAddress + k << dec << endl;
+               // Assuming that the function length gets smaller as we go deeper in the call stack.
+               // Assuming that the probablity of calling another function decreases as we go deeper in the call stack.
                numInstructions += generateAddressesHelper((totalInstructions-numInstructions)/5,
                                                           jumpProbability/2,
                                                           meanSequentialLength,
@@ -146,7 +158,7 @@ int generateAddressesHelper(int totalInstructions, double jumpProbability,
         if (rand() % 100 < percentWriteInstructions) {
             // Store/Write
             int location = rand() % dataSize;
-            cout << "1 " << hex << dataAddressList[location] << dec << " " << rand() % (1024*1024)  << endl;
+            cout << "1 " << hex << dataAddressList[location] << dec << " " << rand() << endl;
         } else {
             // Load/Read
             int location = rand() % dataSize;
