@@ -1,20 +1,35 @@
-How to compile
+To compile:
 
-Go to the directory (Project Part-1) containing the files
+Go to the directory containing the files
+TraceGenerator.cpp
 main.cpp, UI.h, UI.cpp, Cache.h, Cache.cpp, Memory.h, Memory.cpp
 
-write the command
-g++ *.h *.cpp -o <name of output file>
+run the commands
+g++ TraceGenerator.cpp -o <trace-generator>
+g++ Memory.* Cache.* UI.* main.cpp -o <simulator>
 
-This will generate the binary.
+This will generate the binaries.
 
 
+To run:
 
-To run
+Go to the directory containing the binaries <trace-generator> and <simulator>
 
-Go to the directory (Project Part-1) containing the binary
-./<name of binary> -c<capacity> -b<blocksize> -a<associativity> -r<replacement policy> -v<verbose> <input_trace>
-All options except the input_trace have default values, so they are optional.
+./<trace-generator> -t<Total Instructions>
+                    -s<Mean Sequential Length>
+                    -l<Mean Loop Length>
+                    -r<Mean Loop Repetitions>
+                    -d<Percentage of Data Instructions>
+                    -w<Percentage of Write Instructions>
+
+This will generate the input trace.
+
+./<simulator> -c<capacity>
+              -b<blocksize>
+              -a<associativity>
+              -r<replacement policy>
+              -v<verbose>
+              INPUT_TRACE
+
+All options except the INPUT_TRACE have default values, so they are optional.
 The default values are capacity = 8k, blocksize = 16bytes, associativity = 4, replacement policy = LRU & verbose disabled.
-
-
