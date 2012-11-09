@@ -22,7 +22,7 @@ bool UI::readTraceEntry(unsigned int& cmd, unsigned int& address, unsigned int& 
     fin >> cmd >> hex >> address >> dec;
     if (cmd == CACHE_WRITE) {
         // We have an extra field to read.
-        fin >> hex >> data >> dec;
+        fin >> data;
     }
     return !fin.eof();
 }

@@ -128,7 +128,7 @@ void Cache::printCache() {
             cout << hex << setw(6) << tag[i][j];
             cout << setw(6) << dirty[i][j] ? "T" : "F";
             for (int k = 0; k < blocksizeInWords; k++) {
-                cout << hex << setw(10) << cache[i][j * blocksizeInWords + k];
+                cout << dec << setw(12) << cache[i][j * blocksizeInWords + k];
             }
             cout << endl;
         }
