@@ -14,67 +14,75 @@ Cache::Cache() {
 
 Cache::Cache(int cap, int block, int asso, char* repl) {
 
-    capacity = (cap == 0) ? 8 : cap;
-    blocksize = (block == 0) ? 16 : block;
-    associativity = (asso == 0) ? 4 : asso;
+    capacity      = (cap   == 0) ?  8 : cap;
+    blocksize     = (block == 0) ? 16 : block;
+    associativity = (asso  == 0) ?  4 : asso;
+
     if (!strcmp(repl, "Default")) {
         strcpy(replacement, "LRU");
     } else {
         strcpy(replacement, repl);
         srand(time(NULL));
     }
-    numberOfSets = 1024 * capacity / (associativity * blocksize);
+
+    numberOfSets     = 1024 * capacity / (associativity * blocksize);
     blocksizeInWords = blocksize / 4;
-    reads = 0, writes = 0, readMiss = 0, writeMiss = 0, numDirtyBlocksEvicted = 0;
+
+    reads = 0;
+    writes = 0;
+    readMiss = 0;
+    writeMiss = 0;
+    numDirtyBlocksEvicted = 0;
 
     cache = new unsigned int* [numberOfSets];
     for (int i = 0; i < numberOfSets; i++) {
         cache[i] = new unsigned int[associativity * blocksize];
     }
-    tag = new unsigned int* [numberOfSets];
-    for (int i = 0; i < numberOfSets; i++) {
-        tag[i] = new unsigned int[associativity];
-    }
+
+    tag          = new unsigned int* [numberOfSets];
     lastAccessed = new unsigned int* [numberOfSets];
+    valid        = new bool* [numberOfSets];
+    dirty        = new bool* [numberOfSets];
+
     for (int i = 0; i < numberOfSets; i++) {
+        tag[i]          = new unsigned int[associativity];
         lastAccessed[i] = new unsigned int[associativity];
-    }
-    valid = new bool* [numberOfSets];
-    for (int i = 0; i < numberOfSets; i++) {
-        valid[i] = new bool[associativity];
-    }
-    dirty = new bool* [numberOfSets];
-    for (int i = 0; i < numberOfSets; i++) {
-        dirty[i] = new bool[associativity];
+        valid[i]        = new bool[associativity];
+        dirty[i]        = new bool[associativity];
     }
 
     for (int i = 0; i < numberOfSets; i++) {
         for (int k = 0; k < associativity; k++) {
-            valid[i][k] = false;
-            dirty[i][k] = false;
+            valid[i][k]        = false;
+            dirty[i][k]        = false;
             lastAccessed[i][k] = 0;
-            tag[i][k] = 0;
+            tag[i][k]          = 0;
         }
     }
 }
 
 bool Cache::checkConfiguration() {
+
     if (!(capacity == 4 || capacity == 8 || capacity == 16 || capacity == 32 || capacity == 64)) {
         fprintf(stderr, "Cache Capacity should be either 4, 8, 16, 32 or 64 kbytes\n");
         return false;
     }
+
     if (!(blocksize == 4 || blocksize == 8 || blocksize == 16 || blocksize == 32 || blocksize == 64 || blocksize == 128 || blocksize == 256 || blocksize == 512)) {
         fprintf(stderr, "Cache Block Size should be either 4, 8, 16, 32, 64, 128, 256 or 512 bytes\n");
         return false;
     }
+
     if (!(associativity == 1 || associativity == 2 || associativity == 4 || associativity == 8 || associativity == 16)) {
         fprintf(stderr, "Cache Associativity should be either 1, 2, 4, 8 or 16\n");
         return false;
     }
+
     if (!(!strcmp(replacement, "LRU") || !strcmp(replacement, "random"))) {
         fprintf(stderr, "Replacement Policy should be either LRU or random\n");
         return false;
     }
+
     return true;
 }
 

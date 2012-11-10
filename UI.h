@@ -18,9 +18,19 @@ using namespace std;
 
 class UI {
 public:
+
     UI();
+
     bool readTraceEntry(unsigned int& cmd, unsigned int& address, unsigned int& data, ifstream& fin);
-    bool parseParams(int argc, char* argv[], int& cacheCapacity, int& cacheBlocksize, int& cacheAssociativity, char* replacement, bool& verbose, char* filename);
+
+    bool parseParams(int argc, char* argv[],
+                     int& cacheCapacity,
+                     int& cacheBlocksize,
+                     int& cacheAssociativity,
+                     char* replacement,
+                     bool& verbose,
+                     char* filename);
+
     virtual ~UI();
 };
 
