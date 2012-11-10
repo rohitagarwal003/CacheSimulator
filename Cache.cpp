@@ -34,6 +34,16 @@ Cache::Cache(int cap, int block, int asso, char* repl) {
     writeMiss = 0;
     numDirtyBlocksEvicted = 0;
 
+    memoryReadTime      = 50;
+    memoryWriteTime     = 50;
+    cacheAccessTime     =  5;
+    lruFactor           = 0.02;
+    if (associativity != 1) {
+        associativityFactor = 1 + 0.05*associativity;
+    } else {
+        associativityFactor = 0;
+    }
+
     cache = new unsigned int* [numberOfSets];
     for (int i = 0; i < numberOfSets; i++) {
         cache[i] = new unsigned int[associativity * blocksize];
@@ -145,85 +155,130 @@ void Cache::printCache() {
     cout << dec;
 }
 
-void Cache::write(int address, int data) {
+double Cache::write(int address, int data) {
+
+    writes++;
+
     bool isHit = false;
     unsigned int index = (address / blocksizeInWords) % numberOfSets;
     unsigned int wordPositionInBlock = address % blocksizeInWords;
-    writes++;
     unsigned int presentTag = address / (blocksizeInWords * numberOfSets);
+
+    double time = (cacheAccessTime * associativityFactor);
+
     for (int j = 0; j < associativity; j++) {
-        if ((tag[index][j] == presentTag) && valid[index][j]) {//It is a hit.
+        if ((tag[index][j] == presentTag) && valid[index][j]) {
+            //It is a hit.
             cache[index][j * blocksizeInWords + wordPositionInBlock] = data;
             dirty[index][j] = true;
             isHit = true;
             if (!strcmp(replacement, "LRU")) {
                 setLRU(index, j);
+                time += (cacheAccessTime * associativityFactor * lruFactor);  // Hit time depends on replacement policy.
             }
             break;
         }
     }
+
     if (!isHit) {
         writeMiss++;
+
         if (!strcmp(replacement, "LRU")) {
             unsigned int leastRecentlyUsedBlock = findLeastRecentlyUsedBlock(index);
+            time += (cacheAccessTime * associativityFactor * lruFactor);  // Miss time depends on replacement policy.
+
             if (dirty[index][leastRecentlyUsedBlock] && valid[index][leastRecentlyUsedBlock]) {
                 numDirtyBlocksEvicted++;
+                time += memoryWriteTime;     // If block is dirty we need to write to memory.
                 writeBack(myMemory.memory, index, leastRecentlyUsedBlock);
             }
+            time += memoryReadTime;
             readBlockFromMemory(myMemory.memory, address, index, leastRecentlyUsedBlock);
+
             //Write word to cache.
             cache[index][leastRecentlyUsedBlock * blocksizeInWords + wordPositionInBlock] = data;
             dirty[index][leastRecentlyUsedBlock] = true;
             setLRU(index, leastRecentlyUsedBlock);
+
         } else {
             unsigned int someBlock = rand() % associativity;
+
             if (dirty[index][someBlock] && valid[index][someBlock]) {
                 numDirtyBlocksEvicted++;
+                time += memoryWriteTime;     // If block is dirty we need to write to memory.
                 writeBack(myMemory.memory, index, someBlock);
             }
+            time += memoryReadTime;
             readBlockFromMemory(myMemory.memory, address, index, someBlock);
+
             //Write word to cache.
             cache[index][someBlock * blocksizeInWords + wordPositionInBlock] = data;
             dirty[index][someBlock] = true;
         }
     }
+    return time;
 }
 
-void Cache::read(int address) {
-    bool isHit = false;
-    unsigned int index = (address / blocksizeInWords) % numberOfSets;
+double Cache::read(int address) {
+
     reads++;
+    bool isHit = false;
+    double time = 0;
+    unsigned int index = (address / blocksizeInWords) % numberOfSets;
     unsigned int presentTag = address / (blocksizeInWords * numberOfSets);
+
+    time += (cacheAccessTime * associativityFactor);     // Hit time depends on associativity.
+
     for (int j = 0; j < associativity; j++) {
-        if ((tag[index][j] == presentTag) && valid[index][j]) {//It is a hit.
+        if ((tag[index][j] == presentTag) && valid[index][j]) {
+            //It is a hit.
             isHit = true;
             if (!strcmp(replacement, "LRU")) {
                 setLRU(index, j);
+                time += (cacheAccessTime * associativityFactor * lruFactor);  // Hit time depends on replacement policy.
             }
             break;
         }
     }
+
     if (!isHit) {
+
         readMiss++;
+
         if (!strcmp(replacement, "LRU")) {
+
+            
+            time += (cacheAccessTime * associativityFactor * lruFactor);  // Miss time depends on replacement policy.
+
             unsigned int leastRecentlyUsedBlock = findLeastRecentlyUsedBlock(index);
+
             if (dirty[index][leastRecentlyUsedBlock] && valid[index][leastRecentlyUsedBlock]) {
+                time += memoryWriteTime;     // If block is dirty we need to write to memory.
                 numDirtyBlocksEvicted++;
                 writeBack(myMemory.memory, index, leastRecentlyUsedBlock);
             }
+
+            time += memoryReadTime;    // Miss penalty - we have to read from memory..
             readBlockFromMemory(myMemory.memory, address, index, leastRecentlyUsedBlock);
             dirty[index][leastRecentlyUsedBlock] = 0;
             setLRU(index, leastRecentlyUsedBlock);
+
         } else {
             unsigned int someBlock = rand() % associativity;
+
             if (dirty[index][someBlock] && valid[index][someBlock]) {
+                time += memoryWriteTime;     // If block is dirty we need to write to memory.
                 numDirtyBlocksEvicted++;
                 writeBack(myMemory.memory, index, someBlock);
             }
+
+            time += memoryReadTime;    // Miss penalty - we have to read from memory..
             readBlockFromMemory(myMemory.memory, address, index, someBlock);
             dirty[index][someBlock] = 0;
         }
     }
+
+    return time;
 }
 
 Cache::~Cache() {

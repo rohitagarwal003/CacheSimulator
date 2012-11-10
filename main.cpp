@@ -55,6 +55,9 @@ int main(int argc, char *argv[ ]) {
     double readMissRate;
     double writeMissRate;
     double totalMissRate;
+    double totalTime;
+    double readTime  = 0;
+    double writeTime = 0;
 
     cout << "Cache Capacity: "      << myCache.capacity      << endl;
     cout << "Cache BlockSize: "     << myCache.blocksize     << endl;
@@ -66,16 +69,17 @@ int main(int argc, char *argv[ ]) {
     while (ui.readTraceEntry(cmd, address, data, fin)) {
         if (cmd == CACHE_WRITE) {
             // Process a cache write.
-            myCache.write(address, data);
+            writeTime += myCache.write(address, data);
         } else {
             // Process a cache read.
-            myCache.read(address);
+            readTime += myCache.read(address);
         }
     }
 
     totalMissRate = (double) (myCache.readMiss + myCache.writeMiss) / (myCache.reads + myCache.writes);
     writeMissRate = (double) (myCache.writeMiss) / (myCache.writes);
     readMissRate  = (double) (myCache.readMiss) / (myCache.reads);
+    totalTime     = readTime + writeTime;
 
     if (verbose) {
         cout << "\nCACHE CONTENTS" << endl;
@@ -100,6 +104,14 @@ int main(int argc, char *argv[ ]) {
          << setw(8) << readMissRate
          << "\tWrite Miss Rate: "
          << setw(8) << writeMissRate
+         << endl;
+
+    cout << "Read Time: "
+         << setw(8) << readTime
+         << "\tWrite Time: "
+         << setw(8) << writeTime
+         << "\tTotal Time: "
+         << setw(8) << totalTime
          << endl;
 
     cout << "Number Of Dirty Blocks Evicted From The Cache: " << myCache.numDirtyBlocksEvicted << endl;

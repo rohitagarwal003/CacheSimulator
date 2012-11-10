@@ -44,6 +44,12 @@ public:
     unsigned int writeMiss;
     unsigned int numDirtyBlocksEvicted;
 
+    double memoryReadTime;
+    double memoryWriteTime;
+    double cacheAccessTime;
+    double associativityFactor;
+    double lruFactor;
+
     void setLRU(unsigned int index, unsigned int justAccessedBlock);
 
     unsigned int findLeastRecentlyUsedBlock(unsigned int index);
@@ -59,9 +65,9 @@ public:
 
     bool checkConfiguration();
 
-    void write(int address, int data);
+    double write(int address, int data);
 
-    void read(int address);
+    double read(int address);
 
     void printCache();
 
