@@ -1,9 +1,3 @@
-/*
- * File:   main.cpp
- * Author: 3_Idiots
- *
- * Created on 4 November, 2010, 12:35 AM
- */
 #include <stdio.h>
 #include <iostream>
 #include <iomanip>
@@ -34,6 +28,8 @@ int main(int argc, char *argv[ ]) {
     bool verbose         = false;
 
     ifstream fin;
+    ofstream fwriteMiss;
+    ofstream fwriteOccupancy;
     char filename[100];
 
     UI ui;
@@ -56,6 +52,7 @@ int main(int argc, char *argv[ ]) {
     double writeMissRate;
     double totalMissRate;
     double totalTime;
+    double occupancy;
     double readTime  = 0;
     double writeTime = 0;
 
@@ -66,6 +63,8 @@ int main(int argc, char *argv[ ]) {
     cout << "Replacement Policy: "  << myCache.replacement   << endl;
 
     // Each iteration of this loop reads in and operates upon one transaction to memory.
+    fwriteMiss.open("MissRate.dat");
+    fwriteOccupancy.open("Occupancy.dat");
     while (ui.readTraceEntry(cmd, address, data, fin)) {
         if (cmd == CACHE_WRITE) {
             // Process a cache write.
@@ -74,12 +73,17 @@ int main(int argc, char *argv[ ]) {
             // Process a cache read.
             readTime += myCache.read(address);
         }
+        totalMissRate = (double) (myCache.readMiss + myCache.writeMiss) / (myCache.reads + myCache.writes);
+        occupancy     = (double) (myCache.validCount) / (myCache.associativity*myCache.numberOfSets);
+        readMissRate  = (double) (myCache.readMiss)   / (myCache.reads);
+        writeMissRate = (double) (myCache.writeMiss)  / (myCache.writes);
+        totalTime     = readTime + writeTime;
+        fwriteMiss      << totalTime << "\t" << totalMissRate  << "\t" << readMissRate << "\t" << writeMissRate << "\n";
+        fwriteOccupancy << totalTime << "\t" << occupancy      << "\n";
     }
-
-    totalMissRate = (double) (myCache.readMiss + myCache.writeMiss) / (myCache.reads + myCache.writes);
-    writeMissRate = (double) (myCache.writeMiss) / (myCache.writes);
-    readMissRate  = (double) (myCache.readMiss) / (myCache.reads);
-    totalTime     = readTime + writeTime;
+    fin.close();
+    fwriteMiss.close();
+    fwriteOccupancy.close();
 
     if (verbose) {
         cout << "\nCACHE CONTENTS" << endl;
@@ -108,10 +112,14 @@ int main(int argc, char *argv[ ]) {
 
     cout << "Read Time: "
          << setw(8) << readTime
-         << "\tWrite Time: "
+         << "\t\tWrite Time: "
          << setw(8) << writeTime
-         << "\tTotal Time: "
+         << "\t\tTotal Time: "
          << setw(8) << totalTime
+         << endl;
+
+    cout << "Occupancy: "
+         << setw(8) << occupancy
          << endl;
 
     cout << "Number Of Dirty Blocks Evicted From The Cache: " << myCache.numDirtyBlocksEvicted << endl;
