@@ -1,0 +1,5 @@
+set title "Cache Occupancy vs Time";
+set xlabel "Time";
+set ylabel "Cache Occupancy";
+set autoscale;
+plot "Occupancy.dat" using 1:2 title 'Cache Occupancy' with lines;

@@ -1,0 +1,5 @@
+set title "Miss Rate vs Time";
+set xlabel "Time";
+set ylabel "Miss Rate";
+set autoscale;
+plot "MissRate.dat" using 1:2 title 'TotalMissRate' with lines, "MissRate.dat" using 1:3 title 'ReadMissRate' with lines, "MissRate.dat" using 1:4 title 'WriteMissRate' with lines;
