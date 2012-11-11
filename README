@@ -5,7 +5,7 @@ TraceGenerator.cpp
 main.cpp, UI.h, UI.cpp, Cache.h, Cache.cpp, Memory.h, Memory.cpp
 
 run the commands
-g++ TraceGenerator.cpp -o <trace-generator>
+g++ TraceGenerator.cpp -o <tracegenerator>
 g++ Memory.* Cache.* UI.* main.cpp -o <simulator>
 
 This will generate the binaries.
@@ -13,9 +13,9 @@ This will generate the binaries.
 
 To run:
 
-Go to the directory containing the binaries <trace-generator> and <simulator>
+Go to the directory containing the binaries <tracegenerator> and <simulator>
 
-./<trace-generator> -t<Total Instructions>
+./<tracegenerator> -t<Total Instructions>
                     -s<Mean Sequential Length>
                     -l<Mean Loop Length>
                     -r<Mean Loop Repetitions>
@@ -33,3 +33,12 @@ This will generate the input trace.
 
 All options except the INPUT_TRACE have default values, so they are optional.
 The default values are capacity = 8k, blocksize = 16bytes, associativity = 4, replacement policy = LRU & verbose disabled.
+
+
+To display the graphs of Miss Rates vs Time
+$ gnuplot
+gnuplot> load "MissRatePlotScript"
+
+To display the graphs of Miss Rates vs Time
+$ gnuplot
+gnuplot> load "OccupancyPlotScript"

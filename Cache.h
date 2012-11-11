@@ -1,12 +1,5 @@
-/*
- * File:   Cache.h
- * Author: 3_Idiots
- *
- * Created on 4 November, 2010, 12:37 AM
- */
-
 #ifndef CACHE_H
-#define	CACHE_H
+#define CACHE_H
 
 #include "Memory.h"
 #include <stdio.h>
@@ -30,6 +23,7 @@ public:
     int          associativity;
     int          numberOfSets;
     int          blocksizeInWords;
+    int          validCount;
     char         replacement[10];
 
     unsigned int **cache;

@@ -1,10 +1,3 @@
-/*
- * File:   Cache.cpp
- * Author: 3_Idiots
- *
- * Created on 4 November, 2010, 12:37 AM
- */
-
 #include "Cache.h"
 
 using namespace std;
@@ -33,6 +26,7 @@ Cache::Cache(int cap, int block, int asso, char* repl) {
     readMiss = 0;
     writeMiss = 0;
     numDirtyBlocksEvicted = 0;
+    validCount = 0;
 
     memoryReadTime      = 50;
     memoryWriteTime     = 50;
@@ -130,7 +124,11 @@ void Cache::readBlockFromMemory(unsigned int memory[], unsigned int address, uns
         cache[index][someBlock * blocksizeInWords + l] = memory[readAddress + l];
     }
     tag[index][someBlock] = presentTag;
+    if(valid[index][someBlock] == false){
+         validCount++;
+    }
     valid[index][someBlock] = true;
+
 }
 
 void Cache::printCache() {
