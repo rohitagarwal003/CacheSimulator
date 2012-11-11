@@ -1,11 +1,3 @@
-/*
- * File:   UI.cpp
- * Author: 3_Idiots
- * Special Thanks to Prof. Doug Burger (creator of simplescalar)
- * 
- * Created on 4 November, 2010, 2:17 AM
- */
-
 #include "UI.h"
 
 using namespace std;

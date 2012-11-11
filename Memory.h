@@ -1,10 +1,3 @@
-/*
- * File:   Memory.h
- * Author: 3_Idiots
- *
- * Created on 4 November, 2010, 12:40 AM
- */
-
 #ifndef MEMORY_H
 #define	MEMORY_H
 

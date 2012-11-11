@@ -1,10 +1,3 @@
-/*
- * File:   Memory.cpp
- * Author: 3_Idiots
- *
- * Created on 4 November, 2010, 12:40 AM
- */
-
 #include "Memory.h"
 
 using namespace std;
