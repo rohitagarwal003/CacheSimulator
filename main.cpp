@@ -78,8 +78,14 @@ int main(int argc, char *argv[ ]) {
         readMissRate  = (double) (myCache.readMiss)   / (myCache.reads);
         writeMissRate = (double) (myCache.writeMiss)  / (myCache.writes);
         totalTime     = readTime + writeTime;
-        fwriteMiss      << totalTime << "\t" << totalMissRate  << "\t" << readMissRate << "\t" << writeMissRate << "\n";
-        fwriteOccupancy << totalTime << "\t" << occupancy      << "\n";
+        fwriteMiss      << setw(8) << totalTime << "\t"
+                        << setw(8) << totalMissRate << "\t"
+                        << setw(8) << readMissRate << "\t"
+                        << setw(8) << writeMissRate << "\t"
+                        << endl;
+        fwriteOccupancy << setw(8) << totalTime << "\t"
+                        << setw(8) << occupancy
+                        << endl;
     }
     fin.close();
     fwriteMiss.close();
