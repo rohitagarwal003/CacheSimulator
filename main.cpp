@@ -81,6 +81,7 @@ int main(int argc, char *argv[ ]) {
         fwriteMiss      << totalTime << "\t" << totalMissRate  << "\t" << readMissRate << "\t" << writeMissRate << "\n";
         fwriteOccupancy << totalTime << "\t" << occupancy      << "\n";
     }
+    fin.close();
     fwriteMiss.close();
     fwriteOccupancy.close();
 

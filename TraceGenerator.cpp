@@ -23,12 +23,12 @@ int numMethods;
 
 int main(int argc, char *argv[]) {
 
-    int meanSequentialLength;
-    int meanLoopLength;
-    int meanLoopRepetitions;
-    int percentDataInstructions;
-    int percentWriteInstructions;
-    int totalInstructions;
+    int meanSequentialLength       = 20;
+    int meanLoopLength             = 10;
+    int meanLoopRepetitions        = 30;
+    int percentDataInstructions    = 30;
+    int percentWriteInstructions   = 40;
+    int totalInstructions          = 1000;
 
     bool parsed = parseParams(argc, argv,
                               totalInstructions,
@@ -75,6 +75,8 @@ int main(int argc, char *argv[]) {
 
         cout << endl;
     }
+    free(startingAddressList);
+    free(dataAddressList); 
 }
 
 int generateAddresses(int totalInstructions, int startingAddress, double jumpProbability,
