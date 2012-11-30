@@ -1,8 +1,8 @@
 #include <stdio.h>
-#include <iostream>
-#include <fstream>
 #include <stdlib.h>
 #include <math.h>
+#include <iostream>
+#include <fstream>
 
 using namespace std;
 
@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
 
         // Assuming that the amount of data memory used by the program
         // depends linearly on the total number of instructions in the program.
-        dataSize = totalInstructions/10;    
+        dataSize = totalInstructions/10;
         dataAddressList = (int *) malloc(dataSize * sizeof(int));
         for (int i = 0; i < dataSize; i++) {
             dataAddressList[i] = MEM_SIZE/2 + rand() % (MEM_SIZE/2);
@@ -76,7 +76,7 @@ int main(int argc, char *argv[]) {
         cout << endl;
     }
     free(startingAddressList);
-    free(dataAddressList); 
+    free(dataAddressList);
 }
 
 int generateAddresses(int totalInstructions, int startingAddress, double jumpProbability,

@@ -1,12 +1,12 @@
 #include <stdio.h>
+#include <string.h>
 #include <iostream>
 #include <iomanip>
 #include <fstream>
-#include <string.h>
 
-#include "Cache.h"
-#include "Memory.h"
-#include "UI.h"
+#include "./Cache.h"
+#include "./Memory.h"
+#include "./UI.h"
 
 using namespace std;
 

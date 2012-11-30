@@ -1,4 +1,4 @@
-#include "Cache.h"
+#include "./Cache.h"
 
 using namespace std;
 
@@ -124,7 +124,7 @@ void Cache::readBlockFromMemory(unsigned int memory[], unsigned int address, uns
         cache[index][someBlock * blocksizeInWords + l] = memory[readAddress + l];
     }
     tag[index][someBlock] = presentTag;
-    if(valid[index][someBlock] == false){
+    if (valid[index][someBlock] == false) {
          validCount++;
     }
     valid[index][someBlock] = true;
@@ -166,7 +166,7 @@ double Cache::write(int address, int data) {
 
     for (int j = 0; j < associativity; j++) {
         if ((tag[index][j] == presentTag) && valid[index][j]) {
-            //It is a hit.
+            // It is a hit.
             cache[index][j * blocksizeInWords + wordPositionInBlock] = data;
             dirty[index][j] = true;
             isHit = true;
@@ -193,7 +193,7 @@ double Cache::write(int address, int data) {
             time += memoryReadTime;
             readBlockFromMemory(myMemory.memory, address, index, leastRecentlyUsedBlock);
 
-            //Write word to cache.
+            // Write word to cache.
             cache[index][leastRecentlyUsedBlock * blocksizeInWords + wordPositionInBlock] = data;
             dirty[index][leastRecentlyUsedBlock] = true;
             setLRU(index, leastRecentlyUsedBlock);
@@ -209,7 +209,7 @@ double Cache::write(int address, int data) {
             time += memoryReadTime;
             readBlockFromMemory(myMemory.memory, address, index, someBlock);
 
-            //Write word to cache.
+            // Write word to cache.
             cache[index][someBlock * blocksizeInWords + wordPositionInBlock] = data;
             dirty[index][someBlock] = true;
         }
@@ -229,7 +229,7 @@ double Cache::read(int address) {
 
     for (int j = 0; j < associativity; j++) {
         if ((tag[index][j] == presentTag) && valid[index][j]) {
-            //It is a hit.
+            // It is a hit.
             isHit = true;
             if (!strcmp(replacement, "LRU")) {
                 setLRU(index, j);
@@ -245,7 +245,6 @@ double Cache::read(int address) {
 
         if (!strcmp(replacement, "LRU")) {
 
-            
             time += (cacheAccessTime * associativityFactor * lruFactor);  // Miss time depends on replacement policy.
 
             unsigned int leastRecentlyUsedBlock = findLeastRecentlyUsedBlock(index);
