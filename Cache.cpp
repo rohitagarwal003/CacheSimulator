@@ -140,9 +140,9 @@ void Cache::printCache() {
     for (int i = 0; i < numberOfSets; i++) {
         for (int j = 0; j < associativity; j++) {
             cout << dec << setw(10) << i;
-            cout << setw(6) << valid[i][j] ? "T" : "F";
+            cout << setw(6) << (valid[i][j] ? "T" : "F");
             cout << hex << setw(6) << tag[i][j];
-            cout << setw(6) << dirty[i][j] ? "T" : "F";
+            cout << setw(6) << (dirty[i][j] ? "T" : "F");
             for (int k = 0; k < blocksizeInWords; k++) {
                 cout << dec << setw(12) << cache[i][j * blocksizeInWords + k];
             }
