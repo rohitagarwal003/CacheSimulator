@@ -1,44 +1,39 @@
 To compile:
+make all
 
-Go to the directory containing the files
-TraceGenerator.cpp
-main.cpp, UI.h, UI.cpp, Cache.h, Cache.cpp, Memory.h, Memory.cpp
 
-run the commands
-g++ TraceGenerator.cpp -o <tracegenerator>
-g++ Memory.* Cache.* UI.* main.cpp -o <simulator>
-
-This will generate the binaries.
+To clean:
+make clean
 
 
 To run:
+Go to the directory containing the binaries 'tracegenerator' and 'simulator'
 
-Go to the directory containing the binaries <tracegenerator> and <simulator>
-
-./<tracegenerator> -t<Total Instructions>
-                    -s<Mean Sequential Length>
-                    -l<Mean Loop Length>
-                    -r<Mean Loop Repetitions>
-                    -d<Percentage of Data Instructions>
-                    -w<Percentage of Write Instructions>
+./tracegenerator -t<Total Instructions>
+                 -s<Mean Sequential Length>
+                 -l<Mean Loop Length>
+                 -r<Mean Loop Repetitions>
+                 -d<Percentage of Data Instructions>
+                 -w<Percentage of Write Instructions>
 
 This will generate the input trace.
 
-./<simulator> -c<capacity>
-              -b<blocksize>
-              -a<associativity>
-              -r<replacement policy>
-              -v<verbose>
-              INPUT_TRACE
+./simulator -c<capacity>
+            -b<blocksize>
+            -a<associativity>
+            -r<replacement policy>
+            -v<verbose>
+            INPUT_TRACE
 
 All options except the INPUT_TRACE have default values, so they are optional.
 The default values are capacity = 8k, blocksize = 16bytes, associativity = 4, replacement policy = LRU & verbose disabled.
 
 
-To display the graphs of Miss Rates vs Time
+To display the graphs of Miss Rates vs Time:
 $ gnuplot
 gnuplot> load "MissRatePlotScript"
 
-To display the graphs of Miss Rates vs Time
+
+To display the graphs of Miss Rates vs Time:
 $ gnuplot
 gnuplot> load "OccupancyPlotScript"
