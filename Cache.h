@@ -1,16 +1,16 @@
 #ifndef CACHE_H
 #define CACHE_H
 
-#include "Memory.h"
 #include <stdio.h>
-#include <iostream>
-#include <iomanip>
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
+#include <iomanip>
+#include <iostream>
+#include "./Memory.h"
 
 class Cache {
-public:
+  public:
 
     Cache();
 
@@ -68,4 +68,4 @@ public:
     virtual ~Cache();
 };
 
-#endif	/* CACHE_H */
+#endif /* CACHE_H */

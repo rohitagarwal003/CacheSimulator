@@ -1,16 +1,16 @@
 #ifndef UI_H
-#define	UI_H
+#define UI_H
 
 #include <unistd.h>
 #include <stdio.h>
-#include <fstream>
 #include <string.h>
 #include <stdlib.h>
+#include <fstream>
 
 using namespace std;
 
 class UI {
-public:
+  public:
 
     UI();
 
@@ -27,4 +27,4 @@ public:
     virtual ~UI();
 };
 
-#endif	/* UI_H */
+#endif /* UI_H */
